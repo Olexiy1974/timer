@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+  <head>
+<meta name="viewport" content="height=device-high width=device-width initial-scale=1.0">
+<meta charset="UTF-8">
+<title> Таймер </title>
+<link rel=STYLESHEET type="text/css" href="css\my_style.css">
+</head>
+  <body>
+<section class="Ext_Section_Timer">
+  <div class=divInputTime>
+   <h1>⏳ Таймер для зворотнього відліку
+   </h1>
+   <label for=minutes>
+     Введіть час в хвилинах 1 до 150
+   </label>
+   <input type=number id=minutes min=1 max=150 placeholder="Напр. 5" size="40">
+  </div>
+  <section class=outputTime>
+   <div id=displayTime class=timer>00:00</div>
+   <button type=button id=StartStop >▶️ СТАРТ</button>
+   <p id=missage class=" missage hide">🔔 Час вийшов! Введіть новий час для відліку і натиснить кнопку ▶️ Старт</p>
+   </section>
+</section>
+<script defer=defer>
+const inputField=document.getElementById("minutes");
+ const outputTime=document.getElementById('displayTime'); //Отримали доступ до поля виводу часу
+ const buttonStartStop=document.getElementById("StartStop"); //Отримали доступ до кнопки Старт
+ const StopTimerMissage=document.getElementById('missage');//Отримали дотуп до параграфу з надписом Час вийшов
+ let isRunning=false; //Вмзначаємо, чи пора завершити запущений процес відліку. Якщо false - то ні, якщо true- то так
+ let interval; //Тут зберігається id автивного інтервалу (повтору), створеного фіункцією setInterval()
+ const audioAlarmSound = new Audio('sound/alarm.wav'); //Нам в майбутньому знадобиться цей аудіооб'єкт
+ //Дана функція використовується для зупинки відліку часу скидання таймеру.
+
+ function resetUI(interval){
+  clearInterval(interval); //Зупиняємо відлік часу
+  buttonStartStop.textContent = "▶️ СТАРТ"; // Повертаємо висхідний надпис кнопки ▶️ СТАРТ
+  outputTime.textContent='00:00'; //Скидаємо таймер.
+  isRunning=false;
+  StopTimerMissage.classList.add("hide");
+};
+
+
+//Дана функція изначає скільки чау - хвилин та секунд залишилося відлікувати
+
+function updateTime (second) {
+  //Розраховуємо скільки хвилин і секунд залишилося
+   const mins=String(Math.floor(second/60)).padStart(2,'0');// Розраховуємо скільки хвилин залишилося
+   const sec=String(Math.floor(second%60)).padStart(2,'0');// Розраховуємо скільки секунд залишилося
+   outputTime.textContent=`${mins}:${sec}`; //Віводимо отриманий результат.
+  }
+
+ //Додаємо реакцію на клік по даній кнопці
+ buttonStartStop.addEventListener('click',()=> {
+  //Для початку зупиняємо відтворення аудіо, якщо воно вже вдтворюється
+  audioAlarmSound.currentTime=0;
+  audioAlarmSound.pause();
+  //Далі перевіряємо, чи перше це натискання на дану кнопку чи ні. Якщо це перше,
+  //  isRunning==false, виконуємо його обробку і запускаємо процес відліку. Якщо ні, 
+  // isRunning==true, завершуємо відлік, скидаємо таймер і відновлюємо все як було.
+   if (isRunning) {resetUI(interval);} else {
+    const minutes=parseInt(inputField.value); //Отримуємо кількість хвилин потрібно відлікувати
+    const rightNumber=isNaN(minutes);//Введене значення є числом?
+    if (rightNumber|| minutes < 1 || minutes > 150) { // Перевіряємо чи коректне ми ввели значення.
+      if (rightNumber) { //Введене значення не є числом
+        alert ('Введене значення не є числом. Введіть коректне значення що є числом з диапозону від 1..150');
+        return;
+      };
+     if (minutes < 1 || minutes > 150) {// Введене значення - число, що вийшло за межі допустимого діапозону від 1..150
+       alert ('Введене значення є числом. Але воно є числом, що знаходиться за межами допустимого діапозону 1..150 включено. Введіть коректне значення що є числом з диапозону від 1..150');
+        return;
+     };
+    }
+    //Якщо введене значення є коректним числом із діапозону 1..150; продовжуємо далі.
+    StopTimerMissage.classList.add("hide");
+     isRunning=true; //isRunnig==true; вказуємо що перше натискання  на дану кнопку вже було
+    let time=minutes*60; // Скільки часу залишається відлікувати в секундах
+        
+    buttonStartStop.textContent="⏹ Зупинити";//Змінюємо надпис на даній кнопці
+    updateTime(time); //Здійсннюємо першій вивід і виводимо початкове значення у вигляді хвилин та секунд
+    interval=setInterval(
+      () => {
+        time--;//Зменшуємо кількість секунд, залишившихся для відліку на 1
+        updateTime(time); //Виводимо його у вигляді хвилин та секунд
+        //Далі перевіряємо чи не зменшилася кількітсь секунд, залишившихся для відліку до 0.
+        if (time===0) {      //Якщо так завершуємо відлік і виводимо  Час вичерпано.
+        /*Скидаємо таймер, повертаємо назад стандартний надпис на кнопці ▶️ СТАРТ і припиняємо віділік */
+        /*Також готуємо сторінку для повторного запуску відліку*/
+        resetUI(interval);
+        inputField.value="";
+         StopTimerMissage.classList.remove("hide");
+         
+         audioAlarmSound.play();
+         outputTime.classList.add("flash");
+         setTimeout (
+          () => {
+             outputTime.classList.remove("flash");
+          }
+          ,3000
+         );
+        };
+    },
+  1000);
+
+   };
+  
+  
+ }
+
+ )
+</script>
+  </body>
+</html>
