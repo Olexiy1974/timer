@@ -29,7 +29,7 @@ const inputField=document.getElementById("minutes");
  const StopTimerMissage=document.getElementById('missage');//Отримали дотуп до параграфу з надписом Час вийшов
  let isRunning=false; //Вмзначаємо, чи пора завершити запущений процес відліку. Якщо false - то ні, якщо true- то так
  let interval; //Тут зберігається id автивного інтервалу (повтору), створеного фіункцією setInterval()
- const audioAlarmSound = new Audio('Sound/alarm.mp3'); //Нам в майбутньому знадобиться цей аудіооб'єкт
+ const audioAlarmSound = new Audio('Sound/alarm.wav'); //Нам в майбутньому знадобиться цей аудіооб'єкт
  //Дана функція використовується для зупинки відліку часу скидання таймеру.
 
  function resetUI(interval){
